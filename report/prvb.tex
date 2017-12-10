@@ -358,7 +358,7 @@ In answering second question, there is an additional constraint that we have to 
 
 \[ \bigwedge_{i=1,\cdots 8}  (b_i=0 \vee d_i=0)  \]
 
-Ipplementing the second part is just adding some additional line to the first part as follows
+Implementing the second part is just adding some additional line to the first part as follows
 
 { \footnotesize
 {\tt ;prittles and crottles are an explosive combination: they are not allowed to be put in the same truck. }
@@ -513,18 +513,153 @@ variables and the formula consists of over 350,000 clauses, but
 still {\tt yices} succeeds in finding a solution within a few
 seconds.
 
+\subsection*{Problem: Designing chip}
+Give a chip design containing two power components and ten
+regular components satisfying the constraints. What if this last distance requirement of 18 is increased to 20? And what if it increased to 22? 
 
+\subsection*{Solution:}
+Let's say we the wide of the chip is $w$ and its height is $h$. We have $k$ normal component $n_1, n_2, \cdots n_k$ and $l$ power component $p_1, p_2, \cdots p_l$. 
 
 \subsection*{Problem: Jobs scheduling}
 Find a solution of this scheduling problem for which the total running time is minimal
 
 \subsection*{Solution:}
-We introduce 12 variables for each job: $t_1, t_2, \cdots , t_{12}$ representing the starting time of job $1, 2, \cdots, 12$ respectively. Each of the job has duration $d_1, d_2, ... d_{12}$. Most of the constrain in this problem is in form "Job $x$ may only start if jobs $y_1$ and $y_2$ and ... $y_n$ have been finished." This means that the starting time of job $x$ is always greater or equal than the time job $y_1, y_2, \cdots y_n$  
+We introduce 12 variables for each job: $t_1, t_2, \cdots , t_{12}$ representing the starting time of job $1, 2, \cdots, 12$ respectively. Each of the job has duration $d_1, d_2, ... d_{12}$. Most of the constrain in this problem is in form "Job $x$ may only start if jobs $y_1$ and $y_2$ and ... $y_n$ have been finished." This means that the starting time of job $x$ is always greater or equal than the time job $y_1, y_2, \cdots y_n$ finishes which is $t_{y_1}+d_{y_1}, t_{y_2}+d_{y_2}, \cdots t_{y_n}+d_{y_n}$ respectively. This statement can be formulated as follows:
+\[ \bigwedge_{i=1,\cdots n} t_x \geq t_{y_i}+d_{y_i} \]
 
-\begin{enumerate}
-	\item Job 3 may only start if jobs 1 and 2 have been finished.
-	\item Job 5 may only start if jobs 3 and 4 have been finished.
+In this problem, we have $d_1, d_2, \cdots d_{12}$ equal to $6, 7, \cdots 12$ respectively. For each of the x we construct like above (TODO)
+
+Another form of the constraint is "Job x may not start earlier than job $y_1, y_2, \cdots y_n$." It means that the starting time of job $x$ has to be greater than or equal to the starting time of job $y_1, y_2, \cdots y_n$. This statement can be formulated as follows:
+\[ \bigwedge_{i=1,\cdots n} t_x \geq t_{y_i} \]
+
+The last form of the constraint is "Jobs $y_1, y_2, \cdots y_n$ require a special equipment of which only one copy is available, so no two of these jobs may run at the same time". Which means: for every pair of job $(a,b) \in \{(y_1, y_2), (y_1, y_3), \cdots (y_{n-1}, y_{n})\}$ Job a has to be finished before job b started or job a has to be started after job b finished. This statement can be formulated as follows:
+
+Let $Y=\{(y_1, y_2), (y_1, y_3), \cdots (y_{n-1}, y_{n})\}$
+
+   {\Large $\forall_{(a,b) \in Y}$} $((t_a + d_a \leq t_b) \vee (t_a \geq t_b+d_b) )$
+   \[ \forall_{a,b}\bigwedge_{i=1,\cdots n} t_x \geq t_{y_i} \]
+
+Then, we have to make sure for every $t_1, t_2, \cdots t_12$ has to be greater than 0 because our starting time is $t=0$. For having the smallest total job time, we have to get the biggest starting job time from the smt-solver and try to change that number into smaller number until it reaches the smallest number that still yields sat result. Here is the initial code to solve the job scheduling problem: 
+{\footnotesize
+
+{\tt (benchmark test.smt }
+
+{\tt :logic QF\_UFLRA }
+
+{\tt :extrafuns }
+
+{\tt ( (t1 Real) (t2 Real) (t3 Real) (t4 Real) (t5 Real) (t6 Real) (t7 Real) (t8 Real) (t9 Real) (t10 Real) (t11 Real) (t12 Real) }
+
+{\tt ) }
+
+{\tt :formula(and  }
+
+{\tt (>= t1 0) }
+
+{\tt (>= t2 0) }
+
+{\tt (>= t3 0) }
+
+{\tt (>= t4 0) }
+
+{\tt (>= t5 0) }
+
+{\tt (>= t6 0) }
+
+{\tt (>= t7 0) }
+
+{\tt (>= t8 0) }
+
+{\tt (>= t9 0) }
+
+{\tt (>= t10 0) }
+
+{\tt (>= t11 0) }
+
+{\tt (>= t12 0) }
+
+{\tt (>= t3 (+ t1 6)) }
+
+{\tt (>= t3 (+ t2 7)) }
+
+{\tt (>= t5 (+ t3 8)) }
+
+{\tt (>= t5 (+ t4 9)) }
+
+{\tt (>= t7 (+ t3 8)) }
+
+{\tt (>= t7 (+ t4 9)) }
+
+{\tt (>= t7 (+ t6 11)) }
+
+{\tt (>= t8 t5) }
+
+{\tt (>= t9 (+ t5 10)) }
+
+{\tt (>= t9 (+ t8 13)) }
+
+{\tt (>= t11 (+ t10 15)) }
+
+{\tt (>= t12 (+ t9 14)) }
+
+{\tt (>= t12 (+ t11 16)) }
+
+{\tt (or (<= (+ t5 10) t7) (>= t5 (+ t7 12))) }
+
+{\tt (or (<= (+ t5 10) t10) (>= t5 (+ t10 15))) }
+
+{\tt (or (<= (+ t7 12) t10) (>= t7 (+ t10 15))) }
+
+{\tt  }
+
+{\tt   }
+
+{\tt  }
+
+{\tt ) }
+
+{\tt  }
+
+{\tt ) }
 	
-\end{enumerate}
+}
+From the initial result, we see that $t_{12}$ produces the biggest starting time, thus it is always likely the last job to run. We have $t_{12}=54$ from the initial result. We try to minimize $t_{12}$ by adding {\tt (= t12 x) } where x is the desired starting time. Based on our experiment, $x=42$ is the smallest number that still yields sat result. Thus, the minimal total job time is $42+d_{12}=42+17=59$. (Full final code can be seen at: TODO)
+
+Applying {\tt yices-smt -m no3.smt} yields the following result
+within a fraction of a second: 
+
+{\footnotesize
+{\tt sat }
+
+{\tt  }
+
+{\tt (= t8 15) }
+
+{\tt (= t1 1) }
+
+{\tt (= t4 0) }
+
+{\tt (= t6 14) }
+
+{\tt (= t3 7) }
+
+{\tt (= t10 0) }
+
+{\tt (= t5 15) }
+
+{\tt (= t12 42) }
+
+{\tt (= t2 0) }
+
+{\tt (= t7 25) }
+
+{\tt (= t9 28) }
+
+{\tt (= t11 15) }
+
+{\tt  }
+}
+Expressed in a picture this yields: TODO
+
 \end{document}
 
