@@ -518,7 +518,19 @@ Give a chip design containing two power components and ten
 regular components satisfying the constraints. What if this last distance requirement of 18 is increased to 20? And what if it increased to 22? 
 
 \subsection*{Solution:}
-Let's say we the wide of the chip is $w$ and its height is $h$. We have $k$ normal component $n_1, n_2, \cdots n_k$ and $l$ power component $p_1, p_2, \cdots p_l$. 
+Let's say the wide of the chip is $w$ and its height is $h$. We can imagine it as 2 dimension plane that spans from $(0,0)$ to $(w,h)$. We have $k$ normal component $N=n_1, n_2, \cdots n_k$ and $l$ power component $P=p_1, p_2, \cdots p_l$. Each $a$ component has wide $w_a$ and height $h_a$. Let $x_a$, $y_a$ be the bottom-left coordinate of component $a$ in the chip. We also introduce variable $z_a$ for every component $a$, which is an integer that has value of 0 or 1. If $z_a$ equals 0 then component $a$ is not rotated $90^0$, that means it still has $w_a$ as its wide and $h_a$ as its height. If $z_a$ is 1, then $a$ is rotated $90^0$, thus it has a wide of $h_a$ and the height is $w_a$. This is because in the constraint, there is a rule that a component may be rotated. To simplify the representation we will number every component from 1 to $k+l$, where the first $k$ components represents the normal components, and component $k+1, \cdots l$ are power components.
+
+The first rule that we should make is to limit the value of z to strictly 0 and 1. This can be formulated as follows:
+\[ \bigwedge_{i=1,\cdots (k+l)} {(z_i \geq 0 \wedge z_i \leq 1)} \]
+
+The second rule is that a component may only be placed within the chip size. Since a component may have a $z$-value of 0 or 1, we need to build 2 cases. This can be formulated as follows: 
+
+\[ \bigwedge_{i=1,\cdots (k+l)} {(w_i \geq 0 \wedge h_i \geq 0 \wedge ((x_i+w_i \leq w \wedge y_i+h_i \leq h \wedge z_i=0) \vee (x_i+h_i \leq w \wedge y_i+w_i \leq h \wedge z_i=1)))} \]
+
+There are 3 main terms in the conjuction rule above. The first and second are clear: $x_i$ and $y_i$ of the $i$-th component has to be greater than 0. Then the third clauses, we split it into disjuction of two cases: the first is when $z_i=0$ and the second case is when $z_i=1$. We choose disjuction because it is a representaion of a choice/possibility. In the first cases, there are 3 disjunction clauses: first is a clause that stated $x_i+w_i \leq w$ (which means the bottom right corner of the component cannot be greater than chip size), second clause is $y_i+h_i \leq h$ (which means the top right corner of the component cannot be greater than chip size) and the last clause is $z_i=0$ which means we don't rotate the component. Similarly in the second case, the three clauses are similar. Since this is the case where we do the rotation, then we have $x_i+h_i \leq w \wedge y_i+w_i \leq h \wedge z_i=1$ (the wide of the rotated component is the height of the unrotated component, and also applies to the height).
+
+The next problem is to 
+In this problem we have $w=30$, $h=30$, $k=10$, $l=2$
 
 \subsection*{Problem: Jobs scheduling}
 Find a solution of this scheduling problem for which the total running time is minimal
