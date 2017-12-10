@@ -559,8 +559,444 @@ The next constraint is "all regular components should directly be connected to a
 
 For each normal component (numbered from 1 to $k$), we compare each of its edge to the edge of the power component (numbered from $k+1$ to $l$). We only need one point in common with power component for every normal component, thus a disjuction for every comparison with power component is sufficient. In each comparison, we just need to check whether it shares the x-value $(x_i=x_j)$ or y-value $(y_i=y_j)$.
 
+The last constraint is the centre of every power component should differ at least $r$ in either the x direction or the y direction (or both). This can be formulated as follows.
+\[
+\bigwedge_{i=k+1, \cdots l; j=i+1,\cdots l}{\Bigg( \bigg(\Big( \Big|\frac{(x_i+w_i)}{2} - \frac{(x_j+w_j)}{2}\Big| \geq r  \vee \Big|\frac{(y_i+h_i)}{2} - \frac{(y_j+h_j)}{2}\Big| \geq r \Big) \wedge \Big(z_i=0\Big) \wedge \Big(z_j=0\Big) \bigg) }\]
+\[
+{\bigvee \bigg(\Big( \Big|\frac{(x_i+w_i)}{2} - \frac{(x_j+h_j)}{2}\Big| \geq r  \vee \Big|\frac{(y_i+h_i)}{2} - \frac{(y_j+w_j)}{2}\Big| \geq r \Big) \wedge \Big(z_i=0\Big) \wedge \Big(z_j=1\Big)\bigg)}
+\]
+\[{\bigvee \bigg(\Big( \Big|\frac{(x_i+h_i)}{2} - \frac{(x_j+w_j)}{2}\Big| \geq r  \vee \Big|\frac{(y_i+w_i)}{2} - \frac{(y_j+h_j)}{2}\Big| \geq r \Big) \wedge \Big(z_i=1\Big) \wedge \Big(z_j=0\Big)\bigg)}\]
+\[{\bigvee \bigg(\Big( \Big|\frac{(x_i+h_i)}{2} - \frac{(x_j+h_j)}{2}\Big| \geq r  \vee \Big|\frac{(y_i+w_i)}{2} - \frac{(y_j+w_j)}{2}\Big| \geq r \Big) \wedge \Big(z_i=1\Big) \wedge \Big(z_h=1\Big)\bigg)\Bigg)}\]
+We need to take two differents power component, For every pair $(i,j)$, we do a disjunction of 4 cases: 
+\begin{enumerate}
+	\item Component $i$ and $j$ are not rotated ($z_i=0 \wedge z_j=0$). In this case we need to check the distance of both centre in x-axis $|\frac{(x_i+w_i)}{2} - \frac{(x_j+w_j)}{2}| \geq r $ and y-axis $|\frac{(y_i+h_i)}{2} - \frac{(y_j+h_j)}{2}| \geq r $. One of them has to be true, so a disjunction is used. 
+	\item Component $i$ is not rotated and $j$ is rotated ($z_i=0 \wedge z_j=1$). Similar with the first case, but now we swap the value of $w_j$ and $h_j$ because $j$ is rotated.
+	\item Component $i$ is rotated and $j$ is not rotated ($z_i=1 \wedge z_j=0$). Similar with the first case, but now we swap the value of $w_i$ and $h_i$ because $i$ is rotated.
+	\item Component $i$ and $j$ are rotated ($z_i=1 \wedge z_j=1$). Similar with the first case, but now we swap the value of $w_i$ and $h_i$ also $w_j$ and $h_j$ because $i$ and $j$ are rotated.
+\end{enumerate}
 
-In this problem we have $w=30$, $h=30$, $k=10$, $l=2$
+We don't know how to express absolute function in the formula such as $|\frac{(x_i+w_i)}{2} - \frac{(x_j+w_j)}{2}| \geq r $ in SMT. So, we use this equivalent formula:
+\[|\frac{(x_i+w_i)}{2} - \frac{(x_j+w_j)}{2}| \geq r \iff \frac{(x_i+w_i)}{2} - \frac{(x_j+w_j)}{2} \geq r \bigvee \frac{(x_j+w_j)}{2} - \frac{(x_i+w_i)}{2} \geq r \]
+
+In this problem we have $w=30$, $h=30$, $k=10$, $l=2$, $r \in \{18, 20, 22\}$.
+$w_1 = 4, h_1 = 5, w_2 = 4, h_2 = 6, w_3 = 5, h_3 = 20, w_4 = 6, h_4 = 9, w_5 = 6, h_5 = 10, w_6 = 6, h_6 = 11, w_7 = 7, h_7 = 8, w_8 = 7, h_8 = 12, w_9 = 10, h_10 = 10, w_{10} = 10, h_{10} = 20, w_{11} = 4, h_{11} = 3, w_{12} = 4, h_{12} = 3$. The code for $r=18$ is as follows. (full code for this problem can be seen on TODO)
+
+{\footnotesize
+{\tt (benchmark test.smt }
+
+{\tt :logic QF\_UFLRA }
+
+{\tt :extrafuns }
+
+{\tt ((x1 Real) (y1 Real) }
+
+{\tt (x2 Real) (y2 Real) }
+
+{\tt (x3 Real) (y3 Real) }
+
+{\tt (x4 Real) (y4 Real) }
+
+{\tt (x5 Real) (y5 Real) }
+
+{\tt (x6 Real) (y6 Real) }
+
+{\tt (x7 Real) (y7 Real) }
+
+{\tt (x8 Real) (y8 Real) }
+
+{\tt (x9 Real) (y9 Real) }
+
+{\tt (x10 Real) (y10 Real) }
+
+{\tt (x11 Real) (y11 Real) }
+
+{\tt (x12 Real) (y12 Real) }
+
+{\tt (z1 Real) }
+
+{\tt (z2 Real) }
+
+{\tt (z3 Real) }
+
+{\tt (z4 Real) }
+
+{\tt (z5 Real) }
+
+{\tt (z6 Real) }
+
+{\tt (z7 Real) }
+
+{\tt (z8 Real) }
+
+{\tt (z9 Real) }
+
+{\tt (z10 Real) }
+
+{\tt (z11 Real) }
+
+{\tt (z12 Real) }
+
+{\tt ) }
+
+{\tt :formula }
+
+{\tt ( and  }
+
+{\tt (>= x1 0) (>= y1 0)  }
+
+$\vdots$
+
+{\tt (>= x12 0) (>= y12 0) }
+
+{\tt (>= z1 0) (<= z1 1) } 
+
+$\vdots$
+
+{\tt (>= z12 0) (<= z12 1) }
+
+{\tt (or (and (<= x1 26) (<= y1 25) (= z1 0)) (and (<= x1 25) (<= y1 26) (= z1 1))) }
+
+{\tt (or (and (<= x2 26) (<= y2 24) (= z2 0)) (and (<= x2 24) (<= y2 26) (= z2 1))) }
+
+{\tt (or (and (<= x3 25) (<= y3 10) (= z3 0)) (and (<= x3 10) (<= y3 25) (= z3 1))) }
+
+{\tt (or (and (<= x4 24) (<= y4 21) (= z4 0)) (and (<= x4 21) (<= y4 24) (= z4 1))) }
+
+{\tt (or (and (<= x5 24) (<= y5 20) (= z5 0)) (and (<= x5 20) (<= y5 24) (= z5 1))) }
+
+{\tt (or (and (<= x6 24) (<= y6 19) (= z6 0)) (and (<= x6 19) (<= y6 24) (= z6 1))) }
+
+{\tt (or (and (<= x7 23) (<= y7 22) (= z7 0)) (and (<= x7 23) (<= y7 22) (= z7 1))) }
+
+{\tt (or (and (<= x8 23) (<= y8 18) (= z8 0)) (and (<= x8 18) (<= y8 23) (= z8 1))) }
+
+{\tt (or (and (<= x9 20) (<= y9 20) (= z9 0)) (and (<= x9 20) (<= y9 20) (= z9 1))) }
+
+{\tt (or (and (<= x10 20) (<= y10 10) (= z10 0)) (and (<= x10 10) (<= y10 20) (= z10 1))) }
+
+{\tt (or (and (<= x11 26) (<= y11 27) (= z11 0)) (and (<= x11 27) (<= y11 26) (= z11 1))) }
+
+{\tt (or (and (<= x12 26) (<= y12 27) (= z12 0)) (and (<= x12 27) (<= y12 26) (= z12 1))) }
+
+{\tt ;(or }
+
+{\tt ;(and (or (<= (+ x1 4) x2) (<= (+ x2 4) x1) (<= (+ y1 5) y2) (<= (+ y2 6) y1)) (= z1 0) (= z2 0)) }
+
+{\tt ;(and (or (<= (+ x1 4) x2) (<= (+ x2 6) x1) (<= (+ y1 5) y2) (<= (+ y2 4) y1)) (= z1 0) (= z2 1)) }
+
+{\tt ;(and (or (<= (+ x1 5) x2) (<= (+ x2 4) x1) (<= (+ y1 4) y2) (<= (+ y2 6) y1)) (= z1 1) (= z2 0)) }
+
+{\tt ;(and (or (<= (+ x1 4) x2) (<= (+ x2 6) x1) (<= (+ y1 5) y2) (<= (+ y2 4) y1)) (= z1 1) (= z2 1)) }
+
+{\tt ;) }
+
+{\tt (or (and (or (<= (+ x1 4) x2) (<= (+ x2 4) x1) (<= (+ y1 5) y2) (<= (+ y2 6) y1)) (= z1 0) (= z2 0)) (and (or (<= (+ x1 4) x2) (<= (+ x2 6) x1) (<= (+ y1 5) y2) (<= (+ y2 4) y1)) (= z1 0) (= z2 1)) (and (or (<= (+ x1 5) x2) (<= (+ x2 4) x1) (<= (+ y1 4) y2) (<= (+ y2 6) y1)) (= z1 1) (= z2 0)) (and (or (<= (+ x1 5) x2) (<= (+ x2 6) x1) (<= (+ y1 4) y2) (<= (+ y2 4) y1)) (= z1 1) (= z2 1))) }
+
+\vdots
+
+{\tt (or (and (or (<= (+ x11 4) x12) (<= (+ x12 4) x11) (<= (+ y11 3) y12) (<= (+ y12 3) y11)) (= z11 0) (= z12 0)) (and (or (<= (+ x11 4) x12) (<= (+ x12 3) x11) (<= (+ y11 3) y12) (<= (+ y12 4) y11)) (= z11 0) (= z12 1)) (and (or (<= (+ x11 3) x12) (<= (+ x12 4) x11) (<= (+ y11 4) y12) (<= (+ y12 3) y11)) (= z11 1) (= z12 0)) (and (or (<= (+ x11 3) x12) (<= (+ x12 3) x11) (<= (+ y11 4) y12) (<= (+ y12 4) y11)) (= z11 1) (= z12 1))) }
+
+{\tt  }
+
+{\tt (or (= x1 x11) (= y1 y11) (= x1 x12) (= y1 y12)) }
+
+{\tt (or (= x2 x11) (= y2 y11) (= x2 x12) (= y2 y12)) }
+
+{\tt (or (= x3 x11) (= y3 y11) (= x3 x12) (= y3 y12)) }
+
+{\tt (or (= x4 x11) (= y4 y11) (= x4 x12) (= y4 y12)) }
+
+{\tt (or (= x5 x11) (= y5 y11) (= x5 x12) (= y5 y12)) }
+
+{\tt (or (= x6 x11) (= y6 y11) (= x6 x12) (= y6 y12)) }
+
+{\tt (or (= x7 x11) (= y7 y11) (= x7 x12) (= y7 y12)) }
+
+{\tt (or (= x8 x11) (= y8 y11) (= x8 x12) (= y8 y12)) }
+
+{\tt (or (= x9 x11) (= y9 y11) (= x9 x12) (= y9 y12)) }
+
+{\tt (or (= x10 x11) (= y10 y11) (= x10 x12) (= y10 y12)) }
+
+{\tt  }
+
+{\tt (or }
+
+{\tt (and (or (>= (- x11 x12) 18) (>= (- x12 x11) 18) (>= (- y11 y12) 18) (>= (- y12 y11) 18)) (= z11 0) (= z12 0)) }
+
+{\tt (and (or (>= (- (+ x11 0.5) x12) 18) (>= (- (+ x12 0.5) x11) 18) (>= (- (- y11 0.5) y12) 18) (>= (- (- y12 0.5) y11) 18)) (= z11 0) (= z12 1)) }
+
+{\tt (and (or (>= (- (- x11 0.5) x12) 18) (>= (- (- x12 0.5) x11) 18) (>= (- (+ y11 0.5) y12) 18) (>= (- (+ y12 0.5) y11) 18)) (= z11 1) (= z12 0)) }
+
+{\tt (and (or (>= (- x11 x12) 18) (>= (- x12 x11) 18) (>= (- y11 y12) 18) (>= (- y12 y11) 18)) (= z11 1) (= z12 1)) }
+
+{\tt ) }
+
+{\tt  }
+
+{\tt  }
+
+{\tt ) }
+
+{\tt ) }
+}
+The results for $r=12$ is sat, as shown below.
+{ \footnotesize
+{\tt sat }
+
+{\tt  }
+
+{\tt (= y11 0) }
+
+{\tt (= z11 1) }
+
+{\tt (= x1 2) }
+
+{\tt (= y2 19) }
+
+{\tt (= y7 20) }
+
+{\tt (= y3 6) }
+
+{\tt (= x3 0) }
+
+{\tt (= x10 20) }
+
+{\tt (= y10 0) }
+
+{\tt (= y12 20) }
+
+{\tt (= x7 12) }
+
+{\tt (= x8 0) }
+
+{\tt (= x11 6) }
+
+{\tt (= z9 1) }
+
+{\tt (= y4 11) }
+
+{\tt (= x12 0) }
+
+{\tt (= z6 1) }
+
+{\tt (= z7 1) }
+
+{\tt (= z12 0) }
+
+{\tt (= x2 6) }
+
+{\tt (= z3 1) }
+
+{\tt (= y5 0) }
+
+{\tt (= y6 13) }
+
+{\tt (= y8 23) }
+
+{\tt (= z4 0) }
+
+{\tt (= y9 20) }
+
+{\tt (= z8 1) }
+
+{\tt (= x9 20) }
+
+{\tt (= y1 0) }
+
+{\tt (= z5 1) }
+
+{\tt (= z1 0) }
+
+{\tt (= x4 0) }
+
+{\tt (= x5 9) }
+
+{\tt (= z2 1) }
+
+{\tt (= x6 6) }
+
+{\tt (= z10 0) }
+
+{\tt  }
+}
+
+Thus, for $r=12$ it is still possible to arrage the chip.
+
+For $r=20$, the results as follows
+{\footnotesize
+
+{\tt sat }
+
+{\tt  }
+
+{\tt (= y11 0) }
+
+{\tt (= z11 1) }
+
+{\tt (= x1 34/5) }
+
+{\tt (= y2 0) }
+
+{\tt (= y7 4) }
+
+{\tt (= y3 0) }
+
+{\tt (= x3 12) }
+
+{\tt (= x10 0) }
+
+{\tt (= y10 20) }
+
+{\tt (= y12 4) }
+
+{\tt (= x7 17) }
+
+{\tt (= x8 20) }
+
+{\tt (= x11 20) }
+
+{\tt (= z9 1) }
+
+{\tt (= y4 4) }
+
+{\tt (= x12 0) }
+
+{\tt (= z6 0) }
+
+{\tt (= z7 0) }
+
+{\tt (= z12 1) }
+
+{\tt (= x2 4/5) }
+
+{\tt (= z3 0) }
+
+{\tt (= y5 24) }
+
+{\tt (= y6 0) }
+
+{\tt (= y8 12) }
+
+{\tt (= z4 1) }
+
+{\tt (= y9 10) }
+
+{\tt (= z8 0) }
+
+{\tt (= x9 0) }
+
+{\tt (= y1 0) }
+
+{\tt (= z5 1) }
+
+{\tt (= z1 1) }
+
+{\tt (= x4 3) }
+
+{\tt (= x5 20) }
+
+{\tt (= z2 1) }
+
+{\tt (= x6 24) }
+
+{\tt (= z10 1) }
+
+{\tt  }
+
+{\tt  }
+
+}
+
+It is still satisfiable, but some coordinate has real value instead of integer. 
+
+For $r=22$, the results as follows 
+{\footnotesize
+
+{\tt sat }
+
+{\tt  }
+
+{\tt (= y11 22) }
+
+{\tt (= z11 1) }
+
+{\tt (= x1 0) }
+
+{\tt (= y2 22) }
+
+{\tt (= y7 22) }
+
+{\tt (= y3 0) }
+
+{\tt (= x3 10) }
+
+{\tt (= x10 10) }
+
+{\tt (= y10 12) }
+
+{\tt (= y12 0) }
+
+{\tt (= x7 23) }
+
+{\tt (= x8 10) }
+
+{\tt (= x11 10) }
+
+{\tt (= z9 1) }
+
+{\tt (= y4 21) }
+
+{\tt (= x12 0) }
+
+{\tt (= z6 0) }
+
+{\tt (= z7 0) }
+
+{\tt (= z12 1) }
+
+{\tt (= x2 6) }
+
+{\tt (= z3 1) }
+
+{\tt (= y5 22) }
+
+{\tt (= y6 0) }
+
+{\tt (= y8 5) }
+
+{\tt (= z4 0) }
+
+{\tt (= y9 11) }
+
+{\tt (= z8 1) }
+
+{\tt (= x9 0) }
+
+{\tt (= y1 6) }
+
+{\tt (= z5 1) }
+
+{\tt (= z1 0) }
+
+{\tt (= x4 0) }
+
+{\tt (= x5 13) }
+
+{\tt (= z2 0) }
+
+{\tt (= x6 4) }
+
+{\tt (= z10 1) }
+
+{\tt  }
+
+{\tt  }	
+}
+
+It is still satisfiable.
+
+$\therefore$ For $r\in\{18,20,22\}$ it is still possible to make a chip that fulfill the design
 
 \subsection*{Problem: Jobs scheduling}
 Find a solution of this scheduling problem for which the total running time is minimal
