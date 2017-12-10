@@ -525,11 +525,34 @@ The first rule that we should make is to limit the value of z to strictly 0 and 
 
 The second rule is that a component may only be placed within the chip size. Since a component may have a $z$-value of 0 or 1, we need to build 2 cases. This can be formulated as follows: 
 
-\[ \bigwedge_{i=1,\cdots (k+l)} {(w_i \geq 0 \wedge h_i \geq 0 \wedge ((x_i+w_i \leq w \wedge y_i+h_i \leq h \wedge z_i=0) \vee (x_i+h_i \leq w \wedge y_i+w_i \leq h \wedge z_i=1)))} \]
+\[ \bigwedge_{i=1,\cdots (k+l)} {\Bigg(w_i \geq 0 \wedge h_i \geq 0 \wedge } \]
+	
+\[{\bigg((x_i+w_i \leq w \wedge y_i+h_i \leq h \wedge z_i=0\bigg) \vee \\ \bigg(x_i+h_i \leq w \wedge y_i+w_i \leq h \wedge z_i=1)\bigg)\Bigg)} \]
+
 
 There are 3 main terms in the conjuction rule above. The first and second are clear: $x_i$ and $y_i$ of the $i$-th component has to be greater than 0. Then the third clauses, we split it into disjuction of two cases: the first is when $z_i=0$ and the second case is when $z_i=1$. We choose disjuction because it is a representaion of a choice/possibility. In the first cases, there are 3 disjunction clauses: first is a clause that stated $x_i+w_i \leq w$ (which means the bottom right corner of the component cannot be greater than chip size), second clause is $y_i+h_i \leq h$ (which means the top right corner of the component cannot be greater than chip size) and the last clause is $z_i=0$ which means we don't rotate the component. Similarly in the second case, the three clauses are similar. Since this is the case where we do the rotation, then we have $x_i+h_i \leq w \wedge y_i+w_i \leq h \wedge z_i=1$ (the wide of the rotated component is the height of the unrotated component, and also applies to the height).
 
-The next problem is to 
+The next problem is stating the non-overlap constraint. This can be expressed in this formula:
+
+\[ \bigwedge_{i=1,\cdots k+l; j=i+1,\cdots k+l}{\Bigg(\bigg(\Big(x_i+w_i \leq x_j \vee x_j+w_j \leq x_i \vee y_i+h_i \leq y_j \vee y_j+h_j \leq y_i \Big)  \wedge \Big(z_i=0\Big) \wedge \Big(z_j=0\Big)\bigg) }\]
+\[{\vee \bigg(\Big(x_i+w_i \leq x_j \vee x_j+h_j \leq x_i \vee y_i+h_i \leq y_j \vee y_j+w_j \leq y_i \Big)  \wedge \Big(z_i=0\Big) \wedge \Big(z_j=1\Big)\bigg) }\]
+\[{\vee \bigg(\Big(x_i+h_i \leq x_j \vee x_j+w_j \leq x_i \vee y_i+w_i \leq y_j \vee y_j+h_j \leq y_i \Big)  \wedge \Big(z_i=1\Big) \wedge \Big(z_j=0\Big)\bigg)}\]
+\[{ \vee \bigg(\Big(x_i+h_i \leq x_j \vee x_j+h_j \leq x_i \vee y_i+w_i \leq y_j \vee y_j+w_j \leq y_i \Big)  \wedge \Big(z_i=1\Big) \wedge \Big(z_j=1\Big)\bigg) \Bigg)}\]
+
+We take two distinct (in terms of number not size) pairs of every components in the chips. For every pair $(i,j)$, we do a disjunction of 4 cases: 
+\begin{enumerate}
+	\item Component $i$ and $j$ are not rotated. The second
+	\item 2
+	\item 3
+	\item 4
+\end{enumerate}
+(or
+;(and (or (<= (+ x1 4) x2) (<= (+ x2 4) x1) (<= (+ y1 5) y2) (<= (+ y2 6) y1)) (= z1 0) (= z2 0))
+;(and (or (<= (+ x1 4) x2) (<= (+ x2 6) x1) (<= (+ y1 5) y2) (<= (+ y2 4) y1)) (= z1 0) (= z2 1))
+;(and (or (<= (+ x1 5) x2) (<= (+ x2 4) x1) (<= (+ y1 4) y2) (<= (+ y2 6) y1)) (= z1 1) (= z2 0))
+;(and (or (<= (+ x1 4) x2) (<= (+ x2 6) x1) (<= (+ y1 5) y2) (<= (+ y2 4) y1)) (= z1 1) (= z2 1))
+;)
+
 In this problem we have $w=30$, $h=30$, $k=10$, $l=2$
 
 \subsection*{Problem: Jobs scheduling}
