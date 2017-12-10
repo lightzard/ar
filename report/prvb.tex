@@ -18,7 +18,7 @@ Assignment Automated Reasoning 2IW15 }
 
 \begin{center}
 Irfan Nur Afif \\
-1035476\\
+student number: {\tt 1035476}\\
 email: {\tt irfan.nur.afif@.student.tue.nl}
 \end{center}
 
@@ -539,19 +539,26 @@ The next problem is stating the non-overlap constraint. This can be expressed in
 \[{\vee \bigg(\Big(x_i+h_i \leq x_j \vee x_j+w_j \leq x_i \vee y_i+w_i \leq y_j \vee y_j+h_j \leq y_i \Big)  \wedge \Big(z_i=1\Big) \wedge \Big(z_j=0\Big)\bigg)}\]
 \[{ \vee \bigg(\Big(x_i+h_i \leq x_j \vee x_j+h_j \leq x_i \vee y_i+w_i \leq y_j \vee y_j+w_j \leq y_i \Big)  \wedge \Big(z_i=1\Big) \wedge \Big(z_j=1\Big)\bigg) \Bigg)}\]
 
-We take two distinct (in terms of number not size) pairs of every components in the chips. For every pair $(i,j)$, we do a disjunction of 4 cases: 
+We take two distinct (in terms of component number, not size) pairs of every components in the chips. For every pair $(i,j)$, we do a disjunction of 4 cases: 
 \begin{enumerate}
-	\item Component $i$ and $j$ are not rotated. The second
-	\item 2
-	\item 3
-	\item 4
+	\item Component $i$ and $j$ are not rotated ($z_i=0 \wedge z_j=0$). In this case there are 4 possibilities: 
+	\begin{enumerate}
+		\item Component $i$ is located on the left of component $j$, that is $x_i+w_i \leq x_j$.
+		 \item Component $i$ is located on the right of component $j$, that is $x_j+w_j \leq x_i$.
+		 \item Component $i$ is located on the bottom of component $j$, that is $y_i+h_i \leq y_j$.
+		 \item Component $i$ is located on the upper of component $j$, that is $y_j+h_j \leq y_i$.
+	\end{enumerate}
+	\item Component $i$ is not rotated and $j$ is rotated ($z_i=0 \wedge z_j=1$). Similar with the first case, but now we swap the value of $w_j$ and $h_j$ because $j$ is rotated.
+	\item Component $i$ is rotated and $j$ is not rotated ($z_i=1 \wedge z_j=0$). Similar with the first case, but now we swap the value of $w_i$ and $h_i$ because $i$ is rotated.
+	\item Component $i$ and $j$ are rotated ($z_i=1 \wedge z_j=1$). Similar with the first case, but now we swap the value of $w_i$ and $h_i$ also $w_j$ and $h_j$ because $i$ and $j$ are rotated.
 \end{enumerate}
-(or
-;(and (or (<= (+ x1 4) x2) (<= (+ x2 4) x1) (<= (+ y1 5) y2) (<= (+ y2 6) y1)) (= z1 0) (= z2 0))
-;(and (or (<= (+ x1 4) x2) (<= (+ x2 6) x1) (<= (+ y1 5) y2) (<= (+ y2 4) y1)) (= z1 0) (= z2 1))
-;(and (or (<= (+ x1 5) x2) (<= (+ x2 4) x1) (<= (+ y1 4) y2) (<= (+ y2 6) y1)) (= z1 1) (= z2 0))
-;(and (or (<= (+ x1 4) x2) (<= (+ x2 6) x1) (<= (+ y1 5) y2) (<= (+ y2 4) y1)) (= z1 1) (= z2 1))
-;)
+
+The next constraint is "all regular components should directly be connected to a power component, that is, an edge of the component should have at least one point in common with an edge of the power component". This can be formulated as follows.
+\[ \bigwedge_{i=1, \cdots k} \Bigg({\bigvee_{j=k+1, \cdots l} \bigg({(x_i =x_j) \vee (y_i =y_j) \bigg)} \Bigg)}
+\]
+
+For each normal component (numbered from 1 to $k$), we compare each of its edge to the edge of the power component (numbered from $k+1$ to $l$). We only need one point in common with power component for every normal component, thus a disjuction for every comparison with power component is sufficient. In each comparison, we just need to check whether it shares the x-value $(x_i=x_j)$ or y-value $(y_i=y_j)$.
+
 
 In this problem we have $w=30$, $h=30$, $k=10$, $l=2$
 
