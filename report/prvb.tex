@@ -5,6 +5,7 @@
 \usepackage{epic}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{hyperref}
 %\pagestyle{empty}
 \newcommand{\tr}{\mbox{\sf true}}
 \newcommand{\fa}{\mbox{\sf false}}
@@ -40,26 +41,26 @@ email: {\tt irfan.nur.afif@.student.tue.nl}
 We introduce five sets of variables for every type of pallets: $a$ for nuzzles, $b$ for prittles,  $c$ for skipples, $d$ for crottles, $e$ for dupples. For every variable $k \in\{a,b,c,d,e\}$, we divide it again into $k_i, i=1, \cdots 8$ (according to the number of trucks) representing the number of pallets $k$ in truck $i$.
 
 For a truck, it has maximum capacity of 8 pallets. This is expressed by the formula
-\[a_i + b_i + c_i + d_i + e_i \leq 8  \text{, for }  i=1,2,\cdots 8 \]
+\[\bigwedge_{i=1,\cdots 8}{(a_i + b_i + c_i + d_i + e_i \leq 8  )}\]
 
 Each pallets $k$ has a weight $w_k$ kg. Each truck also has a maximum weight of 8,000 kg. This is expressed by the formula:
-\[w_a a_i + w_b b_i + w_c c_i + w_d d_i + w_e e_i \leq 8000  \text{, for }  i=1,2,\cdots 8 \]
+\[\bigwedge_{i=1,\cdots 8}{(w_a a_i + w_b b_i + w_c c_i + w_d d_i + w_e e_i \leq 8000)}  \]
 where $w_a=800$ (corresponds to nuzzles weight in kg), $w_b=1100$, $w_c=1000$, $w_d=2500$, $w_3=200$. For each pallets, there are a number of items that needs to be delivered by trucks. This is represented by the formula
 \[ \sum_{i=1}^{8}{a_i} \leq p_a \wedge
  \sum_{i=1}^{8}{b_i} \leq p_b \wedge 
  \sum_{i=1}^{8}{c_i} \leq p_c \wedge
  \sum_{i=1}^{8}{d_i} \leq p_d \wedge
  \sum_{i=1}^{8}{e_i} \leq p_e\]
- where $p_a=4$ (corresponds to number of nuzzles), $p_b$ is unknown, $p_c=8$, $p_d=10$, $p_e=12$. There are also two additional constraints. The first is that there are only three trucks that can carry the skipples. The way we represents this is by putting the first three trucks as the trucks that has cooling facility (thus it can carry skipples). Since the ordering of the trucks is not constrained in answering the problem, thus we can express it by stating truck 4 until 8 can't carry skipples, which is 
+ where $p_a=4$ (corresponds to number of nuzzles), $p_b$ is unknown, $p_c=8$, $p_d=10$, $p_e=12$. There are also two additional constraints. The first is that there are only three trucks that can carry the skipples. The way we represents this is by putting the first three trucks as the trucks that has cooling facility (thus it can carry skipples). Since the ordering of the trucks is not important in answering the problem, thus we can express it by stating truck 4 until 8 can't carry skipples, which is 
  \[ \bigwedge_{i=4,\cdots 8} c_i=0\]
  
- The second constraint is no two pallets of nuzzles may be in the same truck. This means that each trucks can only carry a maximum of 1 nuzzle. This can be represented by this formula
+ The second constraint is that no two pallets of nuzzles may be in the same truck. This means that each trucks can only carry a maximum of 1 nuzzle. This can be represented by this formula
  \[ \bigwedge_{i=1,\cdots 8} a_i\leq1\]
  
  Last but not least, for every variables, it has to be greater than 0 because the minuimum number of a pallet in the truck is 0.
  \[ (\bigwedge_{i=1,\cdots 8} a_i\geq0) \wedge (\bigwedge_{i=1,\cdots 8} b_i\geq0) \wedge (\bigwedge_{i=1,\cdots 8} c_i\geq0) \wedge  (\bigwedge_{i=1,\cdots 8} d_i\geq0) \wedge (\bigwedge_{i=1,\cdots 8} e_i\geq0)\]
  
- Finally, we can solve the maximum number of $p_b$ by trying the biggest integer numbers from the term {\tt (= (+ b1 b2 b3 b4 b5 b6 b7 b8) $p_b$) } that yields sat results. We know the upper limit of $p_b$ candidate. If each of the 8 trucks can carry at most 8 pallets, there has to be at most 64 pallets. Thus, the upper limit of the candidate is $64-p_a-p_c-p_d-p_e=22$. We try $p_b=22$ but the yices-smt solver returns an unsat result. But, when we try $p_b=21$, the result is sat. Thus, the answer for the first question is 21. Here is the code to solve the first question: (full code can be seen at: TODO)
+ Finally, we can solve the maximum number of $p_b$ by trying the biggest integer numbers from the term {\tt (= (+ b1 b2 b3 b4 b5 b6 b7 b8) $p_b$) } that yields sat results. We know the upper limit of $p_b$ candidate. If each of the 8 trucks can carry at most 8 pallets, there has to be at most 64 pallets. Thus, the upper limit of the candidate is $64-p_a-p_c-p_d-p_e=22$. We try $p_b=22$ but the yices-smt solver returns an unsat result. But, when we try $p_b=21$, the result is sat. Thus, the answer for the first question is 21. Here is the code to solve the first question: (full code can be seen at: \url{https://github.com/lightzard/ar/blob/master/Assignment\%201/p1/no1a.smt})
  
  {\footnotesize
 
@@ -69,17 +70,7 @@ where $w_a=800$ (corresponds to nuzzles weight in kg), $w_b=1100$, $w_c=1000$, $
 
 {\tt  :extrafuns }
 
-{\tt  ((a1 Int) (a2 Int) (a3 Int) (a4 Int) (a5 Int) (a6 Int) (a7 Int) (a8 Int) }
-
-{\tt  (b1 Int) (b2 Int) (b3 Int) (b4 Int) (b5 Int) (b6 Int) (b7 Int) (b8 Int) }
-
-{\tt  (c1 Int) (c2 Int) (c3 Int) (c4 Int) (c5 Int) (c6 Int) (c7 Int) (c8 Int) }
-
-{\tt  (d1 Int) (d2 Int) (d3 Int) (d4 Int) (d5 Int) (d6 Int) (d7 Int) (d8 Int) }
-
-{\tt  (e1 Int) (e2 Int) (e3 Int) (e4 Int) (e5 Int) (e6 Int) (e7 Int) (e8 Int) }
-
-{\tt  ) }
+{\tt  ((a1 Int) (a2 Int) (a3 Int) (a4 Int) (a5 Int) (a6 Int) (a7 Int) (a8 Int) (b1 Int) (b2 Int) (b3 Int) (b4 Int) (b5 Int) (b6 Int) (b7 Int) (b8 Int) (c1 Int) (c2 Int) (c3 Int) (c4 Int) (c5 Int) (c6 Int) (c7 Int) (c8 Int)  (d1 Int) (d2 Int) (d3 Int) (d4 Int) (d5 Int) (d6 Int) (d7 Int) (d8 Int)  (e1 Int) (e2 Int) (e3 Int) (e4 Int) (e5 Int) (e6 Int) (e7 Int) (e8 Int) ) }
 
 {\tt  :formula }
 
@@ -143,115 +134,15 @@ where $w_a=800$ (corresponds to nuzzles weight in kg), $w_b=1100$, $w_c=1000$, $
 
 {\tt  (= (+ e1 e2 e3 e4 e5 e6 e7 e8) 20) }
 
-{\tt  (>= a1 0) }
-
-{\tt  (>= a2 0) }
-
-{\tt  (>= a3 0) }
-
-{\tt  (>= a4 0) }
-
-{\tt  (>= a5 0) }
-
-{\tt  (>= a6 0) }
-
-{\tt  (>= a7 0) }
-
-{\tt  (>= a8 0) }
-
-{\tt  (>= b1 0) }
-
-{\tt  (>= b2 0) }
-
-{\tt  (>= b3 0) }
-
-{\tt  (>= b4 0) }
-
-{\tt  (>= b5 0) }
-
-{\tt  (>= b6 0) }
-
-{\tt  (>= b7 0) }
-
-{\tt  (>= b8 0) }
-
-{\tt  (>= c1 0) }
-
-{\tt  (>= c2 0) }
-
-{\tt  (>= c3 0) }
-
-{\tt  (>= c4 0) }
-
-{\tt  (>= c5 0) }
-
-{\tt  (>= c6 0) }
-
-{\tt  (>= c7 0) }
-
-{\tt  (>= c8 0) }
-
-{\tt  (>= d1 0) }
-
-{\tt  (>= d2 0) }
-
-{\tt  (>= d3 0) }
-
-{\tt  (>= d4 0) }
-
-{\tt  (>= d5 0) }
-
-{\tt  (>= d6 0) }
-
-{\tt  (>= d7 0) }
-
-{\tt  (>= d8 0) }
-
-{\tt  (>= e1 0) }
-
-{\tt  (>= e2 0) }
-
-{\tt  (>= e3 0) }
-
-{\tt  (>= e4 0) }
-
-{\tt  (>= e5 0) }
-
-{\tt  (>= e6 0) }
-
-{\tt  (>= e7 0) }
-
-{\tt  (>= e8 0) }
+{\tt  (>= a1 0) (>= a2 0) (>= a3 0) (>= a4 0) (>= a5 0) (>= a6 0) (>= a7 0) (>= a8 0) (>= b1 0) (>= b2 0) (>= b3 0) (>= b4 0) (>= b5 0) (>= b6 0) (>= b7 0) (>= b8 0) (>= c1 0) (>= c2 0) (>= c3 0) (>= c4 0) (>= c5 0) (>= c6 0) (>= c7 0) (>= c8 0) (>= d1 0) (>= d2 0) (>= d3 0) (>= d4 0) (>= d5 0) (>= d6 0) (>= d7 0) (>= d8 0) (>= e1 0) (>= e2 0) (>= e3 0) (>= e4 0) (>= e5 0) (>= e6 0) (>= e7 0) (>= e8 0) }
 
 {\tt  ;only three of the eight trucks have facility for cooling skipples, assume t1 2 3 }
 
-{\tt  (= c4 0) }
-
-{\tt  (= c5 0) }
-
-{\tt  (= c6 0) }
-
-{\tt  (= c7 0) }
-
-{\tt  (= c8 0) }
+{\tt  (= c4 0) (= c5 0) (= c6 0) (= c7 0) (= c8 0) }
 
 {\tt  ;no two pallets of nuzzles may be in the same truck }
 
-{\tt  (<= a1 1) }
-
-{\tt  (<= a2 1) }
-
-{\tt  (<= a3 1) }
-
-{\tt  (<= a4 1) }
-
-{\tt  (<= a5 1) }
-
-{\tt  (<= a6 1) }
-
-{\tt  (<= a7 1) }
-
-{\tt  (<= a8 1) }
+{\tt  (<= a1 1) (<= a2 1) (<= a3 1) (<= a4 1) (<= a5 1) (<= a6 1) (<= a7 1) (<= a8 1) }
 
 {\tt  ) }
 
@@ -352,9 +243,11 @@ within a fraction of a second:
 
 {\tt  }
 }
-Expressed in a picture this yields: TODO
+Expressed in a picture this yields the following configuration: 
 
-In answering second question, there is an additional constraint that we have to implement. Prittles and crottles are an explosive combination: they are not allowed to be put in the same truck. This means that in a truck, the amount of prittles or crottles has to be zero (or both). Which means
+\includegraphics[scale=0.75, angle=0]{img/1a.png}
+
+Thus, the answer for first question is 21. In answering second question, there is an additional constraint that we have to implement. Prittles and crottles are an explosive combination: they are not allowed to be put in the same truck. This means that in a truck, the amount of prittles or crottles has to be zero (or both). Which means
 
 \[ \bigwedge_{i=1,\cdots 8}  (b_i=0 \vee d_i=0)  \]
 
@@ -469,49 +362,31 @@ Again, we have to find the biggest value of $p_b$ using the same rule as the fir
 
 {\tt  }
 
-Expressed in a picture this yields: TODO
+Expressed in a picture this yields: 
 
+\includegraphics[scale=0.75, angle=0]{img/1b.png}
 
-\vspace{3mm}
 
 %\includegraphics[height=3in,width=3in,angle=0]{eightq.jpg}
 
-\vspace{3mm}
+%\vspace{3mm}
 
-We check that indeed there are eight queens for which no two are
-on the same row, column or diagonal.
+Thus, the answer for the second question is 19.
 
-\vspace{3mm}
+%\vspace{3mm}
 
-{\bf Remark:} 
+%{\bf Remark:} 
 
-Our formula contains some redundancy: the requirement that every
-row contains exactly one queen implies that there are exactly $n$
-queens in total. By expressing that every column contains at least
-one queen, from this property one concludes that also every column
-contains at most one queen. We chose for this redundancy for
-keeping the symmetry in the solution, and also following the
-general strategy that introducing redundancy is often good for
-efficiency.
+%Our formula contains some redundancy: the requirement that every row contains exactly one queen implies that there are exactly $n$ queens in total. By expressing that every column contains at least one queen, from this property one concludes that also every column contains at most one queen. We chose for this redundancy for keeping the symmetry in the solution, and also following the general strategy that introducing redundancy is often good for efficiency.
 
-\vspace{3mm}
+%\vspace{3mm}
 
-{\bf Generalization:} 
+%{\bf Generalization:} 
 
-As we generalized our approach for $n$ rather than 8, it is
-interesting to see what happens for other values of $n$. For $n
-> 10$ we have to take care of the notation: if we keep the
-notation then it is not clear whether {\tt p111} represents 
-$p_{1,11}$ or $p_{11,1}$. This is solved by putting an extra 
-symbol between the two numbers. 
+%As we generalized our approach for $n$ rather than 8, it is interesting to see what happens for other values of $n$. For $n > 10$ we have to take care of the notation: if we keep the notation then it is not clear whether {\tt p111} represents $p_{1,11}$ or $p_{11,1}$. This is solved by putting an extra symbol between the two numbers. 
 
-For $n=3$ the resulting formula is unsatisfiable, showing that
-there is no solution. For $n = 4,5,6,\ldots$ the formula is
-satisfiable, by which is a solution of the problem is found.
-Efficiency is not a problem: for $n = 60$ there are 3600
-variables and the formula consists of over 350,000 clauses, but 
-still {\tt yices} succeeds in finding a solution within a few
-seconds.
+%For $n=3$ the resulting formula is unsatisfiable, showing that there is no solution. For $n = 4,5,6,\ldots$ the formula is satisfiable, by which is a solution of the problem is found. Efficiency is not a problem: for $n = 60$ there are 3600 variables and the formula consists of over 350,000 clauses, but  still {\tt yices} succeeds in finding a solution within a few seconds. 
+\pagebreak
 
 \subsection*{Problem: Designing chip}
 Give a chip design containing two power components and ten
@@ -998,6 +873,8 @@ It is still satisfiable.
 
 $\therefore$ For $r\in\{18,20,22\}$ it is still possible to make a chip that fulfill the design
 
+\pagebreak
+
 \subsection*{Problem: Jobs scheduling}
 Find a solution of this scheduling problem for which the total running time is minimal
 
@@ -1138,6 +1015,14 @@ within a fraction of a second:
 {\tt  }
 }
 Expressed in a picture this yields: TODO
+
+\pagebreak
+
+\subsection*{Problem: Parallel program}
+ Show how it is possible to end in c = −24, in c = −7, in c = 3 and in c= 24, and also try some other final values for c
+ .
+
+\subsection*{Solution:}
 
 \end{document}
 
