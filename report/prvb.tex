@@ -454,7 +454,7 @@ We don't know how to express absolute function in the formula such as $|\frac{(x
 \[|\frac{(x_i+w_i)}{2} - \frac{(x_j+w_j)}{2}| \geq r \iff \frac{(x_i+w_i)}{2} - \frac{(x_j+w_j)}{2} \geq r \bigvee \frac{(x_j+w_j)}{2} - \frac{(x_i+w_i)}{2} \geq r \]
 
 In this problem we have $w=30$, $h=30$, $k=10$, $l=2$, $r \in \{18, 20, 22\}$.
-$w_1 = 4, h_1 = 5, w_2 = 4, h_2 = 6, w_3 = 5, h_3 = 20, w_4 = 6, h_4 = 9, w_5 = 6, h_5 = 10, w_6 = 6, h_6 = 11, w_7 = 7, h_7 = 8, w_8 = 7, h_8 = 12, w_9 = 10, h_10 = 10, w_{10} = 10, h_{10} = 20, w_{11} = 4, h_{11} = 3, w_{12} = 4, h_{12} = 3$. The code for $r=18$ is as follows. (full code for this problem can be seen on TODO)
+$w_1 = 4, h_1 = 5, w_2 = 4, h_2 = 6, w_3 = 5, h_3 = 20, w_4 = 6, h_4 = 9, w_5 = 6, h_5 = 10, w_6 = 6, h_6 = 11, w_7 = 7, h_7 = 8, w_8 = 7, h_8 = 12, w_9 = 10, h_10 = 10, w_{10} = 10, h_{10} = 20, w_{11} = 4, h_{11} = 3, w_{12} = 4, h_{12} = 3$. The code for $r=18$ is as follows. (full code for this problem can be seen on \url{https://github.com/lightzard/ar/tree/master/Assignment%201/p2})
 
 {\footnotesize
 {\tt (benchmark test.smt }
@@ -879,22 +879,25 @@ $\therefore$ For $r\in\{18,20,22\}$ it is still possible to make a chip that ful
 Find a solution of this scheduling problem for which the total running time is minimal
 
 \subsection*{Solution:}
-We introduce 12 variables for each job: $t_1, t_2, \cdots , t_{12}$ representing the starting time of job $1, 2, \cdots, 12$ respectively. Each of the job has duration $d_1, d_2, ... d_{12}$. Most of the constrain in this problem is in form "Job $x$ may only start if jobs $y_1$ and $y_2$ and ... $y_n$ have been finished." This means that the starting time of job $x$ is always greater or equal than the time job $y_1, y_2, \cdots y_n$ finishes which is $t_{y_1}+d_{y_1}, t_{y_2}+d_{y_2}, \cdots t_{y_n}+d_{y_n}$ respectively. This statement can be formulated as follows:
+We introduce k variables for each job: $t_1, t_2, \cdots , t_{k}$ representing the starting time of job $1, 2, \cdots, k$ respectively. Each of the job has duration $d_1, d_2, ... d_{k}$. Most of the constrain in this problem is in form "Job $x$ may only start if jobs $y_1$ and $y_2$ and ... $y_n$ have been finished." This means that the starting time of job $x$ is always greater or equal than the time job $y_1, y_2, \cdots y_n$ finishes which is $t_{y_1}+d_{y_1}, t_{y_2}+d_{y_2}, \cdots t_{y_n}+d_{y_n}$ respectively. This statement can be formulated as follows:
 \[ \bigwedge_{i=1,\cdots n} t_x \geq t_{y_i}+d_{y_i} \]
-
-In this problem, we have $d_1, d_2, \cdots d_{12}$ equal to $6, 7, \cdots 12$ respectively. For each of the x we construct like above (TODO)
 
 Another form of the constraint is "Job x may not start earlier than job $y_1, y_2, \cdots y_n$." It means that the starting time of job $x$ has to be greater than or equal to the starting time of job $y_1, y_2, \cdots y_n$. This statement can be formulated as follows:
 \[ \bigwedge_{i=1,\cdots n} t_x \geq t_{y_i} \]
 
 The last form of the constraint is "Jobs $y_1, y_2, \cdots y_n$ require a special equipment of which only one copy is available, so no two of these jobs may run at the same time". Which means: for every pair of job $(a,b) \in \{(y_1, y_2), (y_1, y_3), \cdots (y_{n-1}, y_{n})\}$ Job a has to be finished before job b started or job a has to be started after job b finished. This statement can be formulated as follows:
-
+\\
 Let $Y=\{(y_1, y_2), (y_1, y_3), \cdots (y_{n-1}, y_{n})\}$
 
-   {\Large $\forall_{(a,b) \in Y}$} $((t_a + d_a \leq t_b) \vee (t_a \geq t_b+d_b) )$
-   \[ \forall_{a,b}\bigwedge_{i=1,\cdots n} t_x \geq t_{y_i} \]
+   { $\bigwedge_{(a,b) \in Y}$} $((t_a + d_a \leq t_b) \vee (t_a \geq t_b+d_b) )$
+   \\
 
-Then, we have to make sure for every $t_1, t_2, \cdots t_12$ has to be greater than 0 because our starting time is $t=0$. For having the smallest total job time, we have to get the biggest starting job time from the smt-solver and try to change that number into smaller number until it reaches the smallest number that still yields sat result. Here is the initial code to solve the job scheduling problem: 
+
+Then, we have to make sure for every $t_1, t_2, \cdots t_k$ has to be greater than 0 because our starting time is $t=0$. \[\bigwedge_{i=1, \cdots k} t_i \geq 0\]
+
+In this problem, we have $k=12$; $d_1, d_2, \cdots d_{12}$ equal to $6, 7, \cdots 12$ respectively. For each of the constraint in problem, we just need to translate each of them into the form in the previous explanation. For "All jobs run without interrupt." we don't need to add any rule because in our current system, once a job is started at $t_i$, it will be ended exactly at $t_i+d_i$.
+
+For having the smallest total job time, we have to get the biggest starting job time from the smt-solver and try to change that number into smaller number until it reaches the smallest number that still yields sat result. Here is the initial code to solve the job scheduling problem: 
 {\footnotesize
 
 {\tt (benchmark test.smt }
@@ -909,29 +912,9 @@ Then, we have to make sure for every $t_1, t_2, \cdots t_12$ has to be greater t
 
 {\tt :formula(and  }
 
-{\tt (>= t1 0) }
+{\tt (>= t1 0)  (>= t2 0)  (>= t3 0)  (>= t4 0)  (>= t5 0)  (>= t6 0) }
 
-{\tt (>= t2 0) }
-
-{\tt (>= t3 0) }
-
-{\tt (>= t4 0) }
-
-{\tt (>= t5 0) }
-
-{\tt (>= t6 0) }
-
-{\tt (>= t7 0) }
-
-{\tt (>= t8 0) }
-
-{\tt (>= t9 0) }
-
-{\tt (>= t10 0) }
-
-{\tt (>= t11 0) }
-
-{\tt (>= t12 0) }
+{\tt (>= t7 0)  (>= t8 0)  (>= t9 0)  (>= t10 0)  (>= t11 0)  (>= t12 0) }
 
 {\tt (>= t3 (+ t1 6)) }
 
@@ -978,7 +961,7 @@ Then, we have to make sure for every $t_1, t_2, \cdots t_12$ has to be greater t
 {\tt ) }
 	
 }
-From the initial result, we see that $t_{12}$ produces the biggest starting time, thus it is always likely the last job to run. We have $t_{12}=54$ from the initial result. We try to minimize $t_{12}$ by adding {\tt (= t12 x) } where x is the desired starting time. Based on our experiment, $x=42$ is the smallest number that still yields sat result. Thus, the minimal total job time is $42+d_{12}=42+17=59$. (Full final code can be seen at: TODO)
+From the initial result, we see that $t_{12}$ produces the biggest starting time, thus it is always likely the last job to run. We have $t_{12}=54$ from the initial result. We try to minimize $t_{12}$ by adding {\tt (= t12 x) } where x is the desired starting time. Based on our experiment, $x=42$ is the smallest number that still yields sat result. Thus, the minimal total job time is $42+d_{12}=42+17=59$.
 
 Applying {\tt yices-smt -m no3.smt} yields the following result
 within a fraction of a second: 
@@ -1014,7 +997,24 @@ within a fraction of a second:
 
 {\tt  }
 }
-Expressed in a picture this yields: TODO
+
+This means that: 
+\begin{itemize}
+	\item Job 1 started at t=1 until t=6 
+	\item Job 2 started at t=0 until t=7
+	\item Job 3 started at t=7 until t=15
+	\item Job 4 started at t=0 until t=9
+	\item Job 5 started at t=15 until t=25
+	\item Job 6 started at t=10 until t=21
+	\item Job 7 started at t=25 until t=37
+	\item Job 8 started at t=15 until t=28
+	\item Job 9 started at t=28 until t=42
+	\item Job 10 started at t=0 until t=15
+	\item Job 11 started at t=15 until t=31
+	\item Job 12 started at t=42 until t=59
+\end{itemize}
+$\therefore$ This yields a minimum of 59 time unit as the minimum total running time.
+
 
 \pagebreak
 
@@ -1023,6 +1023,216 @@ Expressed in a picture this yields: TODO
  .
 
 \subsection*{Solution:}
+We use NuSMV to solve this problem. We will need 3 variables: $i_1$ which will be the counter for the first process, $i_2$ which will be the counter for the second process and $c$ the state that we would like to investigate its reachability. The value of $i_1$ and $i_2$ will strictly span from 0 to 21 because initially it has values of 0 and it can go up to 20, we also include 21 as a 'dead-end' state (we can't increase this value anymore).
 
+The idea is modelling this problem as a reachability problem. It can be modeled as a transition as follows:
+
+There are 4 cases that we check first: 
+\begin{enumerate}
+	\item First, we check whether we can still execute both process, in this case $(i_1 \leq 20 \wedge i_1 \leq 20)$. The next step is to check whether $c < 5$. If it is true, then we should do one of both transition as follows: {\tt next(c)=c+i1+1 \& next(i1)=i1 + 1 \& next(i2)=i2} or {\tt next(c)=c+i2+1 \& next(i2)=i2 + 1 \& next(i1)=i1}. The first transition means is executing first process while the second one is executing the second process. If we execute the first process then obviously we increase $i_1$ while keeping the value of $i_2$ in the next iteration. For c, we should increase c with the value of $i_1$ in the next iteration, thus we have {\tt next(c)=c+i1+1}. We do this because we wanted for each step in the output, we will have the correct value of $i_1$ and $c$ after each iteration.
+	
+	If it is $c \geq 5$ then it will be the same transition for $i_1$ and $i_2$, as for $c$ it will be one of  {\tt next(c)=i1+1-2*c} or {\tt next(c)=i2+1-2*c}
+	\item Second, we check whether we can still execute first process only, in this case $(i_1 \leq 20)$. Similar with the first case, but the transition here is certain: {\tt next(c)=c+i1+1 \& next(i1)=i1 + 1 \& next(i2)=i2}
+	\item Third, we check whether we can still execute second process only, in this case $(i_2 \leq 20)$. Similar with the first case, but the transition here is certain: {\tt next(c)=c+i2+1 \& next(i2)=i2 + 1 \& next(i1)=i1}
+	\item Lastly, if we go to this case means we can't execute both process. We just make a self-loop so that there will be no transition: {\tt next(c)=c \& next(i1)=i1 \& next(i2)=i2}
+	
+\end{enumerate}
+
+
+
+
+The code for $c= -24$ is as follows:
+{\footnotesize
+
+{\tt MODULE main }
+
+{\tt VAR }
+
+{\tt i1 :  0..21; }
+
+{\tt i2 :  0..21; }
+
+{\tt c :  -100..100; }
+
+{\tt INIT }
+
+{\tt i1 = 0 \& i2 = 0 \& c = 0 }
+
+{\tt TRANS }
+
+{\tt case  }
+
+{\tt i1<=20 \& i2<=20: (case(c<5): next(c)=c+i1+1 \& next(i1)=i1 + 1 \& next(i2)=i2;TRUE: next(c)=i1 + 1 - 2*c \& next(i1)=i1 + 1 \& next(i2)=i2; esac) | (case(c<5): next(c)=c+i2+1 \& next(i2)=i2 + 1 \& next(i1)=i1;TRUE: next(c)=i2 + 1 - 2*c \& next(i2)=i2 + 1 \& next(i1)=i1; esac); }
+
+{\tt i1<=20: (case(c<5): next(c)=c+i1+1 \& next(i1)=i1 + 1 \& next(i2)=i2;TRUE: next(c)=i1+1 - 2*c \& next(i1)=i1 + 1 \& next(i2)=i2; esac); }
+
+{\tt i2<=20: (case(c<5): next(c)=c+i2+1 \& next(i2)=i2 + 1 \& next(i1)=i1;TRUE: next(c)=i2+1 - 2*c \& next(i2)=i2 + 1 \& next(i1)=i1; esac); }
+
+{\tt TRUE: (next(c)=c \& next(i1)=i1 \& next(i2)=i2); }
+
+{\tt esac  }
+
+{\tt LTLSPEC G !(c = -24) }	
+}
+
+The output is returned in a second, as follows:
+{
+	\footnotesize
+	
+	{\tt -- specification  G !(c = -24)  is false }
+	
+	{\tt -- as demonstrated by the following execution sequence }
+	
+	{\tt Trace Description: LTL Counterexample  }
+	
+	{\tt Trace Type: Counterexample  }
+	
+	{\tt   -> State: 1.1 <- }
+	
+	{\tt     i1 = 0 }
+	
+	{\tt     i2 = 0 }
+	
+	{\tt     c = 0 }
+	
+	{\tt   -> State: 1.2 <- }
+	
+	{\tt     i2 = 1 }
+	
+	{\tt     c = 1 }
+	
+	{\tt   -> State: 1.3 <- }
+	
+	{\tt     i2 = 2 }
+	
+	{\tt     c = 3 }
+	
+	{\tt   -> State: 1.4 <- }
+	
+	{\tt     i2 = 3 }
+	
+	{\tt     c = 6 }
+	
+	{\tt   -> State: 1.5 <- }
+	
+	{\tt     i2 = 4 }
+	
+	{\tt     c = -8 }
+	
+	{\tt   -> State: 1.6 <- }
+	
+	{\tt     i2 = 5 }
+	
+	{\tt     c = -3 }
+	
+	{\tt   -> State: 1.7 <- }
+	
+	{\tt     i2 = 6 }
+	
+	{\tt     c = 3 }
+	
+	{\tt   -> State: 1.8 <- }
+	
+	{\tt     i1 = 1 }
+	
+	{\tt     c = 4 }
+	
+	{\tt   -> State: 1.9 <- }
+	
+	{\tt     i2 = 7 }
+	
+	{\tt     c = 11 }
+	
+	{\tt   -> State: 1.10 <- }
+	
+	{\tt     i2 = 8 }
+	
+	{\tt     c = -14 }
+	
+	{\tt   -> State: 1.11 <- }
+	
+	{\tt     i2 = 9 }
+	
+	{\tt     c = -5 }
+	
+	{\tt   -> State: 1.12 <- }
+	
+	{\tt     i2 = 10 }
+	
+	{\tt     c = 5 }
+	
+	{\tt   -> State: 1.13 <- }
+	
+	{\tt     i2 = 11 }
+	
+	{\tt     c = 1 }
+	
+	{\tt   -> State: 1.14 <- }
+	
+	{\tt     i2 = 12 }
+	
+	{\tt     c = 13 }
+	
+	{\tt   -> State: 1.15 <- }
+	
+	{\tt     i1 = 2 }
+	
+	{\tt     c = -24 }
+	
+}
+
+Based on the result above, we should do the second process 6 times, first process once, second process 6 times and first process once consecutively.
+
+For $c=-7$ it is reachable by doing the second process 3 times, the first process once and the second process once cosecutively as shown from the following output
+{\footnotesize
+
+{\tt -- specification  G !(c = -7)  is false }
+
+{\tt -- as demonstrated by the following execution sequence }
+
+{\tt Trace Description: LTL Counterexample  }
+
+{\tt Trace Type: Counterexample  }
+
+{\tt   -> State: 1.1 <- }
+
+{\tt     i1 = 0 }
+
+{\tt     i2 = 0 }
+
+{\tt     c = 0 }
+
+{\tt   -> State: 1.2 <- }
+
+{\tt     i2 = 1 }
+
+{\tt     c = 1 }
+
+{\tt   -> State: 1.3 <- }
+
+{\tt     i2 = 2 }
+
+{\tt     c = 3 }
+
+{\tt   -> State: 1.4 <- }
+
+{\tt     i2 = 3 }
+
+{\tt     c = 6 }
+
+{\tt   -> State: 1.5 <- }
+
+{\tt     i1 = 1 }
+
+{\tt     c = -11 }
+
+{\tt   -> State: 1.6 <- }
+
+{\tt     i2 = 4 }
+
+{\tt     c = -7 }
+}
+
+For $c=3$ it is reachable by doing the first process twice. For $c=24$ it is reachable by doing the second process 20 times.
 \end{document}
 
